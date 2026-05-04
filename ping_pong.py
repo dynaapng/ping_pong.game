@@ -1,3 +1,4 @@
+
 from pygame import *
 
 win_width = 600
@@ -42,8 +43,8 @@ font1 = font.SysFont("Arial", 30)
 lose1 = font1.render("PLAYER 1 LOSE!!!", True, (180, 0, 0))
 lose2 = font1.render("PLAYER 2 LOSE!!!", True, (180, 0, 0))
 
-#win1 = font1.render("PLAYER 1 WIN!!!", True, (180, 0, 0))
-#win2 = font1.render("PLAYER 2 WIN!!!", True, (180, 0, 0))
+win1 = font1.render("PLAYER 1 WIN!!!", True, (180, 0, 0))
+win2 = font1.render("PLAYER 2 WIN!!!", True, (180, 0, 0))
 
 
 racket1 = Player('racket.png', 30, 200, 50, 150, 4) 
@@ -53,6 +54,9 @@ ball = Character("ball.png", 200, 200, 50, 50, 50)
 speed_x = 3
 speed_y = 3
 
+score1 = 0
+score2 = 0
+maxx = 5
 
 game = True
 finish = False
@@ -68,29 +72,58 @@ while game:
         ball.rect.x += speed_x
         ball.rect.y += speed_y
 
-    if sprite.collide_rect(racket1, ball) or sprite.collide_rect(racket2, ball):
-        speed_x *= -1
-        speed_y *= 1
+        if sprite.collide_rect(racket1, ball):
+            speed_x *= -1
+            score1 += 1
+            if score1 >= maxx:
+                finish = True
+                window.blit(win1, (200, 200))
+        if sprite.collide_rect(racket2, ball):
+            speed_x *= -1
+            score2 += 1
+            if score2 >= maxx:
+                finish = True
+                window.blit(win2, (200, 200))
 
-    #if the ball reaches screen edges, change its movement direction
-    if ball.rect.y > win_height-50 or ball.rect.y < 0:
-        speed_y *= -1
 
-    #if ball flies behind this paddle, display loss condition for player 1
-    if ball.rect.x < 0:
-        finish = True
-        window.blit(lose1, (200, 200))
-        game_over = True
+        #if the ball reaches screen edges, change its movement direction
+        if ball.rect.y > win_height-50 or ball.rect.y < 0:
+            speed_y *= -1
 
-    #if ball flies behind this paddle, display loss condition for player 2
-    if ball.rect.x > win_width:
-        finish = True
-        window.blit(lose2, (200, 200))
-        game_over = True
+        #if ball flies behind this paddle, display loss condition for player 1
+        if ball.rect.x < 0:
+            finish = True
+            window.blit(lose1, (200, 200))
+            game_over = True
+            
+        #if ball flies behind this paddle, display loss condition for player 2
+        if ball.rect.x > win_width:
+            finish = True
+            window.blit(lose2, (200, 200))
+            game_over = True
 
-    racket1.reset()
-    racket2.reset()
-    ball.reset()
+    
+        player1sc = font1.render(str((score1)) + " vs " + str((score2)), True, (0, 100, 150))
+        window.blit(player1sc, (win_width // 2 - 50, 10))
 
+        racket1.reset()
+        racket2.reset()
+        ball.reset()
+    else:
+        window.fill(background)
+        if score1 >= maxx:
+            window.blit(win1, (150, 200))
+            window.blit(lose2, (150, 250))
+        elif score2 >= maxx:
+            window.blit(win2, (150, 200))
+            window.blit(lose1, (150, 250))
+        elif ball.rect.x < 0:
+            window.blit(lose1, (150, 200))
+        elif ball.rect.x > win_width:
+            window.blit(lose2, (150, 250))
+        
+
+        
     display.update()
     clock.tick(FPS)
+
